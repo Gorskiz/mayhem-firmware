@@ -75,8 +75,8 @@ constexpr region_t spifi_cached{LPC_SPIFI_DATA_CACHED_BASE, spifi_uncached.size(
 
 /////////////////////////////////
 
-constexpr region_t m4_code{local_sram_1.base(), 32_KiB};
-constexpr region_t shared_memory{m4_code.end(), 8_KiB};
+constexpr region_t m4_code{local_sram_1.base(), 40_KiB};
+constexpr region_t shared_memory{local_sram_0.base() + 88_KiB, 8_KiB};
 
 constexpr region_t m4_code_hackrf = local_sram_0;
 

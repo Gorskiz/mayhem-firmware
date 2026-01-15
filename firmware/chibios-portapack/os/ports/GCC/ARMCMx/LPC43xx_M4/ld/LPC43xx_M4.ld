@@ -23,8 +23,8 @@ __process_stack_size__  = 0x1000;   /* main() stack */
 
 MEMORY
 {
-    flash (rx)  : org = 0x00000000, len = 32752	/* Local SRAM @ 0x10080000 */
-    ram   (rwx) : org = 0x10000000, len = 96k   /* Local SRAM @ 0x10000000 */
+    flash (rx)  : org = 0x00000000, len = 40944	/* Local SRAM @ 0x10080000 */
+    ram   (rwx) : org = 0x10000000, len = 88k   /* Local SRAM @ 0x10000000 */
 	ram_usb (rwx) : org = 0x20008000, len = 32K
 }
 
