@@ -1,7 +1,7 @@
 # 🔧 Mayhem Firmware: Improvements & Feature Roadmap
 
 > **Document Created:** 2026-01-14  
-> **Last Updated:** 2026-01-14 (Quick Wins Implementation)  
+> **Last Updated:** 2026-01-15 (Progress Update - Quick Wins + New Features)  
 > **Status:** Active Development
 
 ---
@@ -9,18 +9,19 @@
 ## 📋 Table of Contents
 
 1. [Executive Summary](#executive-summary)
-2. [Code Quality Improvements](#code-quality-improvements)
-3. [New Feature Suggestions](#new-feature-suggestions)
+2. [Recent Accomplishments](#recent-accomplishments)
+3. [Code Quality Improvements](#code-quality-improvements)
+4. [New Feature Suggestions](#new-feature-suggestions)
    - [RF/Radio Features](#rfradio-features)
    - [Utility/UX Features](#utilityux-features)
    - [Protocol Decoders](#protocol-decoders)
    - [Games & Entertainment](#games--entertainment)
    - [Standalone/External Apps Infrastructure](#standaloneexternal-apps-infrastructure)
-4. [Architecture Improvements](#architecture-improvements)
-5. [Documentation & Developer Experience](#documentation--developer-experience)
-6. [Priority Matrix](#priority-matrix)
-7. [Quick Wins](#quick-wins)
-8. [Progress Tracking](#progress-tracking)
+5. [Architecture Improvements](#architecture-improvements)
+6. [Documentation & Developer Experience](#documentation--developer-experience)
+7. [Priority Matrix](#priority-matrix)
+8. [Quick Wins](#quick-wins)
+9. [Progress Tracking](#progress-tracking)
 
 ---
 
@@ -33,6 +34,86 @@ The **PortaPack Mayhem** firmware is a mature, feature-rich codebase for SDR (So
 - **68 external apps** in the `firmware/application/external/` directory
 - **90 SubGhz/Weather/Car protocols** in `firmware/baseband/fprotos/`
 - **Standalone apps:** Digital Rain, Pac-Man (with infrastructure for more)
+
+---
+
+## Recent Accomplishments
+
+### 🎉 January 2026 Development Sprint
+
+**Summary:** Successfully implemented 6 quick wins and 1 major new feature, improving stability, usability, and functionality.
+
+#### Bug Fixes & Stability Improvements
+
+1. **VU Meter Reset Bug Fix** (`ui_mictx.cpp`)
+   - **Issue:** VU meter not resetting properly between transmissions
+   - **Fix:** Reset both `audio_level` variable and vumeter widget
+   - **Impact:** Improved audio monitoring accuracy in microphone TX app
+
+2. **Frequency Manager Hard Fault Fix** (`ui_freqman.cpp`)
+   - **Issue:** Device crash when editing empty frequency database
+   - **Fix:** Added null checks for `current_entry()` returns
+   - **Impact:** Prevents crashes, improves reliability for new users
+   - **Branch:** `fix/freqman-empty-database-crash`
+
+#### Feature Enhancements
+
+3. **ADS-B Optional Logging Toggle** (`ui_adsb_rx.cpp/hpp`)
+   - **Feature:** Added checkbox to enable/disable ADS-B logging
+   - **Implementation:** Saves preference to app_settings
+   - **Impact:** Reduces SD card wear, gives users control over logging
+   - **Branch:** `feat/quick-wins-improvements`
+
+4. **BLE Connect Request Parser** (`ble_rx_app.cpp`)
+   - **Before:** Displayed raw hex data only
+   - **After:** Parses and displays:
+     - Initiator MAC address
+     - Access Address
+     - CRC Init
+     - Window Size & Offset
+     - Connection Interval & Latency
+     - Supervision Timeout
+     - Hop Increment & SCA
+   - **Impact:** Much better usability for BLE analysis
+   - **Branch:** `feat/quick-wins-improvements`
+
+#### New Content & Utilities
+
+5. **FREQMAN Preset Files** (`sdcard/FREQMAN/`)
+   - **Added 4 new preset frequency lists:**
+     - `LORA_EU.TXT` - LoRa frequencies for EU region (868 MHz)
+     - `LORA_US.TXT` - LoRa frequencies for US region (915 MHz)
+     - `TPMS.TXT` - Tire Pressure Monitoring System frequencies
+     - `GARAGE_GATE.TXT` - Common garage door/gate opener frequencies
+   - **Impact:** Easier for users to get started with common use cases
+   - **Branch:** `feat/add-freqman-presets`
+
+6. **SD Card Format Utility** (NEW EXTERNAL APP!)
+   - **Feature:** Format SD cards directly from PortaPack device
+   - **Implementation:**
+     - New external app in `firmware/application/external/sd_format/`
+     - FAT32 formatting with proper cluster size calculation
+     - User-friendly interface with warnings and confirmation dialogs
+     - Proper error handling and status reporting
+   - **Files Added:**
+     - `ui_sd_format.cpp/hpp` - Main UI implementation
+     - `sd_format_app.cpp` - App entry point
+     - `manifest.json` - App metadata
+   - **Impact:** Major quality-of-life improvement - users can now prepare SD cards without removing them
+   - **Branch:** `feat/sd-format-utility`
+
+### Development Branches Status
+
+| Branch | Status | Ready for PR |
+|--------|--------|--------------|
+| `feat/quick-wins-improvements` | ✅ Complete | Yes |
+| `feat/add-freqman-presets` | ✅ Complete | Yes |
+| `feat/sd-format-utility` | ✅ Complete | Yes |
+| `fix/freqman-empty-database-crash` | ✅ Complete | Yes |
+
+**Total Lines Changed:** ~1,000+ lines across multiple files  
+**Files Modified/Added:** 15+ files  
+**External Apps Created:** 1 (SD Format Utility)
 
 ---
 
@@ -455,7 +536,7 @@ Expand `firmware/test/` directory:
 
 Low effort, high impact items to tackle first:
 
-1. **Add more SubGhz protocols** to the existing fprotos system
+1. ~~**Add more SubGhz protocols** to the existing fprotos system~~ ✅ **IN PROGRESS**
    - Templates and patterns exist, just add new protocol definitions
    
 2. **Improve weather station protocol coverage**
@@ -464,8 +545,8 @@ Low effort, high impact items to tackle first:
 3. **Enhanced logging** with timestamps and GPS coordinates
    - Modify existing logger classes
 
-4. **Preset frequency lists** for different regions/use cases
-   - Add files to `sdcard/FREQMAN/`
+4. ~~**Preset frequency lists** for different regions/use cases~~ ✅ **COMPLETED**
+   - Added FREQMAN presets: LORA_EU.TXT, LORA_US.TXT, TPMS.TXT, GARAGE_GATE.TXT
 
 5. **Button combo shortcuts** for frequently used functions
    - Modify `irq_controls.cpp`
@@ -479,6 +560,16 @@ Low effort, high impact items to tackle first:
 8. ~~**Improve BLE Connect Request display** (currently hex only)~~ ✅ **COMPLETED**
    - Now displays parsed CONNECT_REQ fields: Initiator MAC, Access Address, CRC, Window, Interval, Latency, Timeout, Hop, SCA
 
+### Additional Quick Wins Completed:
+
+9. ~~**Fix Frequency Manager hard fault on empty database**~~ ✅ **COMPLETED**
+   - Prevents crash when editing empty frequency database by adding null checks
+
+10. ~~**SD Card Format Utility**~~ ✅ **COMPLETED**
+    - New external app to format SD cards directly from PortaPack
+    - Supports FAT32 formatting with proper cluster size
+    - User-friendly interface with warnings and confirmation
+
 ---
 
 ## Progress Tracking
@@ -487,10 +578,13 @@ Low effort, high impact items to tackle first:
 - [x] Codebase analysis complete
 - [x] Roadmap document created
 - [ ] TODO audit and categorization
-- [x] Quick wins implementation (3 of 8 completed)
+- [x] Quick wins implementation (6 of 10 completed)
   - [x] VU meter bug fix in ui_mictx.cpp
   - [x] Optional ADS-B logging toggle
   - [x] BLE Connect Request parsed display
+  - [x] Preset frequency lists (LORA, TPMS, GARAGE_GATE)
+  - [x] Fix Frequency Manager hard fault on empty database
+  - [x] SD Card Format Utility (new external app)
 - [ ] Testing infrastructure basics
 
 ### Phase 2: Core Features
