@@ -385,7 +385,8 @@ class ADSBRxView : public View {
         ReceiverModel::Mode::SpectrumAnalysis};
     bool logging_enabled{true};
     app_settings::SettingsManager settings_{
-        "rx_adsb", app_settings::Mode::RX,
+        "rx_adsb",
+        app_settings::Mode::RX,
         {
             {"logging"sv, &logging_enabled},
         }};
