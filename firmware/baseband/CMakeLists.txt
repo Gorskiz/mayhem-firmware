@@ -478,12 +478,6 @@ set(MODE_CPPSRC
 DeclareTargets(PSGD subghzd)
 
 
-### Weather Stations
-set(MODE_CPPSRC
-	proc_weather.cpp
-)
-DeclareTargets(PWTH weather)
-
 set(MODE_FLAGS "-Os")
 
 ### Flash Utility
@@ -514,6 +508,14 @@ set(MODE_CPPSRC
 	proc_acars.cpp
 )
 DeclareTargets(PACA acars)
+
+
+### Weather Stations (external - too large for flash)
+
+set(MODE_CPPSRC
+	proc_weather.cpp
+)
+DeclareTargets(PWTH weather)
 
 
 ### AFSK RX
