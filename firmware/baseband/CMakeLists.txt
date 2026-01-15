@@ -664,6 +664,14 @@ set(MODE_CPPSRC
 DeclareTargets(PSCD subcar)
 
 
+### LoRa RX (Meshtastic/MeshCore Sniffer)
+
+set(MODE_CPPSRC
+	proc_lorarx.cpp
+)
+DeclareTargets(PLOR lorarx)
+
+
 ### SD over USB
 
 set(MODE_INCDIR

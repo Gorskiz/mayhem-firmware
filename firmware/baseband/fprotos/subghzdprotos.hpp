@@ -106,7 +106,7 @@ class SubGhzDProtos : public FProtoListGeneral {
         protos[FPS_STARLINE] = new FProtoSubGhzDStarLine();
         protos[FPS_X10] = new FProtoSubGhzDX10();
         // protos[FPS_HORMANNBISECURE] = new FProtoSubGhzDHormannBiSecure();  //fm
-        protos[ FPS_LEGRAND] = new FProtoSubGhzDLegrand();
+        protos[FPS_LEGRAND] = new FProtoSubGhzDLegrand();
         protos[FPS_GANGQI] = new FProtoSubGhzDGangqi();
         protos[FPS_MARANTEC24] = new FProtoSubGhzDMarantec24();
         protos[FPS_ANSONIC] = new FProtoSubGhzDAnsonic();
