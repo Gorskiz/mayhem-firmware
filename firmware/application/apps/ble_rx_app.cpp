@@ -410,23 +410,22 @@ void BleRecentEntryDetailView::paint(Painter& painter) {
                 field_rect = draw_field(painter, field_rect, s, "CRC", to_string_hex(connect_req->CRCInit & 0xFFFFFF, 6));
 
                 // Display Window Size and Offset
-                field_rect = draw_field(painter, field_rect, s, "Win",
-                                        "Sz:" + to_string_dec_uint(connect_req->WinSize) +
-                                            " Off:" + to_string_dec_uint(connect_req->WinOffset));
+                std::string win_str = "Sz:" + to_string_dec_uint(connect_req->WinSize) + " Off:" + to_string_dec_uint(connect_req->WinOffset);
+                field_rect = draw_field(painter, field_rect, s, "Win", win_str);
 
                 // Display Connection Interval (in 1.25ms units)
                 float interval_ms = connect_req->Interval * 1.25f;
-                field_rect = draw_field(painter, field_rect, s, "Int",
-                                        to_string_dec_uint(connect_req->Interval) + " (" + to_string_dec_uint((uint32_t)interval_ms) + "ms)");
+                std::string int_str = to_string_dec_uint(connect_req->Interval) + " (" + to_string_dec_uint((uint32_t)interval_ms) + "ms)";
+                field_rect = draw_field(painter, field_rect, s, "Int", int_str);
 
                 // Display Latency and Timeout
                 float timeout_ms = connect_req->Timeout * 10.0f;
-                field_rect = draw_field(painter, field_rect, s, "Lat",
-                                        to_string_dec_uint(connect_req->Latency) + " Tout:" + to_string_dec_uint((uint32_t)timeout_ms) + "ms");
+                std::string lat_str = to_string_dec_uint(connect_req->Latency) + " Tout:" + to_string_dec_uint((uint32_t)timeout_ms) + "ms";
+                field_rect = draw_field(painter, field_rect, s, "Lat", lat_str);
 
                 // Display Hop Increment and SCA (Sleep Clock Accuracy)
-                field_rect = draw_field(painter, field_rect, s, "Hop",
-                                        to_string_dec_uint(connect_req->Hop & 0x1F) + " SCA:" + to_string_dec_uint(connect_req->SCA & 0x07));
+                std::string hop_str = to_string_dec_uint(connect_req->Hop & 0x1F) + " SCA:" + to_string_dec_uint(connect_req->SCA & 0x07);
+                field_rect = draw_field(painter, field_rect, s, "Hop", hop_str);
             } else {
                 // Fallback to hex display for unknown types or insufficient data
                 uint8_t type = 0xFF;
