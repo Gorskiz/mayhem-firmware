@@ -198,6 +198,9 @@ class SystemStatusView : public View {
     void set_title_image_enabled(bool new_value);
     void set_title(const std::string new_value);
 
+    // Screenshot function - public for button combo access
+    void on_camera();
+
    private:
     static constexpr auto default_title = "";
     bool batt_was_inited = false;  // if the battery was off on tart, but later turned on.
@@ -299,7 +302,6 @@ class SystemStatusView : public View {
 
     void on_converter();
     void on_bias_tee();
-    void on_camera();
     void on_title();
     void refresh();
     void on_clk();
@@ -442,6 +444,10 @@ class SystemView : public View {
 
     NavigationView* get_navigation_view();
     SystemStatusView* get_status_view();
+
+    // Button combo shortcut handlers
+    void take_screenshot();
+    void go_home();
 
    private:
     uint8_t overlay_active{0};

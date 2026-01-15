@@ -1037,6 +1037,16 @@ void SystemView::set_app_fullscreen(bool fullscreen) {
          {parent_rect.width(), static_cast<Dim>(parent_rect.height() - status_view_height)}});
 }
 
+void SystemView::take_screenshot() {
+    // Delegate to the status view's camera handler
+    status_view.on_camera();
+}
+
+void SystemView::go_home() {
+    // Navigate to the home screen
+    navigation_view.home(true);
+}
+
 /* ***********************************************************************/
 
 void SplashScreenView::focus() {

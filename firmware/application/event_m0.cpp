@@ -370,6 +370,8 @@ void EventDispatcher::handle_switches() {
     }
 
     if (in_key_event) {
+        // Check for button combos while in key event
+        // Back combo: Left + Up
         if (switches_state[(size_t)ui::KeyEvent::Left] && switches_state[(size_t)ui::KeyEvent::Up]) {
             const auto event = static_cast<ui::KeyEvent>(ui::KeyEvent::Back);
             context.focus_manager().update(top_widget, event);
@@ -390,6 +392,51 @@ void EventDispatcher::handle_switches() {
         return;
     }
 
+    // Check for button combos (2 or more buttons pressed)
+    if (switches_state.count() >= 2) {
+        bool combo_handled = false;
+
+        // Screenshot combo: Select + Right
+        if (switches_state[(size_t)ui::KeyEvent::Select] && switches_state[(size_t)ui::KeyEvent::Right]) {
+            const auto event = ui::KeyEvent::Screenshot;
+            if (!event_bubble_key(event)) {
+                // If not consumed by a widget, take screenshot at system level
+                static_cast<ui::SystemView*>(top_widget)->take_screenshot();
+            }
+            combo_handled = true;
+        }
+        // Home combo: Select + Left
+        else if (switches_state[(size_t)ui::KeyEvent::Select] && switches_state[(size_t)ui::KeyEvent::Left]) {
+            const auto event = ui::KeyEvent::Home;
+            if (!event_bubble_key(event)) {
+                // If not consumed by a widget, go home at system level
+                static_cast<ui::SystemView*>(top_widget)->go_home();
+            }
+            combo_handled = true;
+        }
+        // Sleep combo: Select + Down
+        else if (switches_state[(size_t)ui::KeyEvent::Select] && switches_state[(size_t)ui::KeyEvent::Down]) {
+            const auto event = ui::KeyEvent::Sleep;
+            if (!event_bubble_key(event)) {
+                // Toggle display sleep
+                set_display_sleep(true);
+            }
+            combo_handled = true;
+        }
+        // Back combo: Left + Up (existing)
+        else if (switches_state[(size_t)ui::KeyEvent::Left] && switches_state[(size_t)ui::KeyEvent::Up]) {
+            const auto event = ui::KeyEvent::Back;
+            context.focus_manager().update(top_widget, event);
+            combo_handled = true;
+        }
+
+        if (combo_handled) {
+            in_key_event = true;
+            return;
+        }
+    }
+
+    // Single key handling
     for (size_t i = 0; i < switches_state.size(); i++) {
         // TODO: Ignore multiple keys at the same time?
         if (switches_state[i]) {

@@ -417,7 +417,11 @@ enum class KeyEvent : uint8_t {
     Up = 3,
     Select = 4,
     Dfu = 5,
-    Back = 6, /* Left and Up together */
+    Back = 6,       /* Left and Up together */
+    /* Button combo shortcuts */
+    Screenshot = 7, /* Select + Right - Quick screenshot */
+    Home = 8,       /* Select + Left - Go to home screen */
+    Sleep = 9,      /* Select + Down - Toggle display sleep */
 };
 
 using EncoderEvent = int32_t;
