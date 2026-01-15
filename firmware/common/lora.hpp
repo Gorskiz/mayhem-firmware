@@ -86,7 +86,7 @@ constexpr uint16_t SYNC_WORD_LEGACY = 0x12;
 // Preamble
 constexpr uint8_t PREAMBLE_MIN_SYMBOLS = 6;
 constexpr uint8_t PREAMBLE_DEFAULT_SYMBOLS = 8;
-constexpr uint8_t PREAMBLE_MAX_SYMBOLS = 65535;
+constexpr uint16_t PREAMBLE_MAX_SYMBOLS = 65535;
 
 // LoRa Packet Header modes
 enum class HeaderMode : uint8_t {

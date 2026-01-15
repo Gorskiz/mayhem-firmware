@@ -40,7 +40,7 @@ void LoRaRxProcessor::execute(const buffer_c8_t& buffer) {
 
     // Decimation chain: 4MHz -> 500kHz baseband
     // Stage 0: 4MHz / 8 = 500kHz
-    const auto decim_0_out = decim_0.execute(buffer, dst_buffer);
+    const auto decim_0_out = decim_0.execute(buffer, dst_buffer_);
 
     feed_channel_stats(decim_0_out);
 
@@ -145,7 +145,7 @@ uint16_t LoRaRxProcessor::detect_symbol_fft() {
     update_signal_quality(max_magnitude, noise_floor);
 
     // Apply Gray decoding to get actual symbol value
-    return lora::gray_decode(max_bin, static_cast<uint8_t>(config_.sf));
+    return lora::gray_decode(max_bin);
 }
 
 void LoRaRxProcessor::process_symbol(uint16_t symbol) {

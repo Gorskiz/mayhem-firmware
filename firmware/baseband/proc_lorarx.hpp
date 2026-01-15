@@ -47,7 +47,8 @@ class LoRaRxProcessor : public BasebandProcessor {
     static constexpr size_t baseband_fs = 4000000;  // 4 MHz sample rate
 
     // Decimation chain: 4MHz -> 500kHz
-    std::array<complex16_t, 512> dst_buffer{};
+    std::array<complex16_t, 512> dst_array_{};
+    const buffer_c16_t dst_buffer_{dst_array_.data(), dst_array_.size()};
     dsp::decimate::FIRC8xR16x24FS4Decim8 decim_0{};
 
     // LoRa configuration
