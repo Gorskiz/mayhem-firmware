@@ -31,6 +31,9 @@ So include here the .hpp, and add a new element to the protos vector in the cons
 #include "w-solight_te44.hpp"
 #include "w-bresser_3ch.hpp"
 #include "w-vauno_en8822.hpp"
+#include "w-fineoffset_wh2.hpp"
+#include "w-ecowitt.hpp"
+#include "w-bresser_5in1.hpp"
 
 #include <vector>
 #include <memory>
@@ -72,6 +75,9 @@ class WeatherProtos : public FProtoListGeneral {
         protos[FPW_Bresser3CH_V1] = nullptr;  // done by FProtoWeatheBresser3CH
         protos[FPW_Vauno_EN8822] = new FProtoWeatherVaunoEN8822();
         protos[FPW_OREGON2B] = nullptr;  // done by FProtoWeatherOregon2
+        protos[FPW_FineOffsetWH2] = new FProtoWeatherFineOffsetWH2();
+        protos[FPW_Ecowitt] = new FProtoWeatherEcowitt();
+        protos[FPW_Bresser5in1] = new FProtoWeatherBresser5in1();
 
         // set callback for them
         for (uint8_t i = 0; i < FPW_COUNT; ++i) {
