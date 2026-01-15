@@ -91,30 +91,30 @@ void FormatSDView::start_format() {
 void FormatSDView::run() {
     // Work buffer for f_mkfs - needs to be at least 512 bytes
     auto work_buffer = std::make_unique<std::array<uint8_t, 4096>>();
-    
+
     // Unmount before formatting
     f_mount(nullptr, reinterpret_cast<const TCHAR*>(_T("")), 0);
-    
+
     progress.set_value(30);
-    
+
     // Format as FAT32 with default cluster size
     // FM_FAT32 = 0x02, with automatic cluster size (0)
     FRESULT result = f_mkfs(
         reinterpret_cast<const TCHAR*>(_T("")),  // Path (root)
-        FM_FAT32,                                  // FAT32 format
-        0,                                         // Auto cluster size
-        work_buffer->data(),                       // Work buffer
-        work_buffer->size()                        // Work buffer size
+        FM_FAT32,                                // FAT32 format
+        0,                                       // Auto cluster size
+        work_buffer->data(),                     // Work buffer
+        work_buffer->size()                      // Work buffer size
     );
-    
+
     progress.set_value(80);
-    
+
     // Remount the SD card
     FRESULT mount_result = f_mount(&sd_card::fs, reinterpret_cast<const TCHAR*>(_T("")), 1);
-    
+
     progress.set_value(100);
     format_in_progress = false;
-    
+
     if (result == FR_OK && mount_result == FR_OK) {
         text_info.set("Format complete!");
     } else if (result != FR_OK) {
@@ -122,7 +122,7 @@ void FormatSDView::run() {
     } else {
         text_info.set("Mount failed!");
     }
-    
+
     button_cancel.set_focusable(true);
     button_cancel.focus();
 }
