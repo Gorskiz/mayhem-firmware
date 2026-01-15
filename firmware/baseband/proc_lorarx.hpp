@@ -27,16 +27,13 @@
 #include "rssi_thread.hpp"
 #include "dsp_decimate.hpp"
 #include "spectrum_collector.hpp"
-#include "channel_decimator.hpp"
+#include "message.hpp"
 
 #include "lora.hpp"
 
 #include <array>
 #include <cstdint>
 #include <memory>
-
-// Forward declaration for FFT
-class FFT;
 
 class LoRaRxProcessor : public BasebandProcessor {
    public:
@@ -52,7 +49,6 @@ class LoRaRxProcessor : public BasebandProcessor {
     // Decimation chain: 4MHz -> 500kHz
     std::array<complex16_t, 512> dst_buffer{};
     dsp::decimate::FIRC8xR16x24FS4Decim8 decim_0{};
-    dsp::decimate::FIRC16xR16x32Decim8 decim_1{};
 
     // LoRa configuration
     lora::LoRaConfig config_{};
@@ -130,59 +126,6 @@ class LoRaRxProcessor : public BasebandProcessor {
     // Threads
     BasebandThread baseband_thread_{baseband_fs, this, baseband::Direction::Receive};
     RSSIThread rssi_thread_{};
-};
-
-// LoRa RX Configuration Message
-class LoRaRxConfigureMessage : public Message {
-   public:
-    constexpr LoRaRxConfigureMessage(
-        uint32_t frequency,
-        lora::SpreadingFactor sf,
-        lora::Bandwidth bw,
-        lora::CodingRate cr,
-        uint16_t sync_word,
-        bool implicit_header)
-        : Message{ID::LoRaRxConfigure},
-          frequency_(frequency),
-          sf_(sf),
-          bw_(bw),
-          cr_(cr),
-          sync_word_(sync_word),
-          implicit_header_(implicit_header) {}
-
-    uint32_t frequency() const { return frequency_; }
-    lora::SpreadingFactor sf() const { return sf_; }
-    lora::Bandwidth bw() const { return bw_; }
-    lora::CodingRate cr() const { return cr_; }
-    uint16_t sync_word() const { return sync_word_; }
-    bool implicit_header() const { return implicit_header_; }
-
-   private:
-    uint32_t frequency_;
-    lora::SpreadingFactor sf_;
-    lora::Bandwidth bw_;
-    lora::CodingRate cr_;
-    uint16_t sync_word_;
-    bool implicit_header_;
-};
-
-// LoRa Packet Received Message (M4 -> M0)
-class LoRaPacketMessage : public Message {
-   public:
-    static constexpr size_t MAX_PAYLOAD = 255;
-
-    LoRaPacketMessage()
-        : Message{ID::LoRaPacket} {}
-
-    uint32_t frequency{0};
-    lora::SpreadingFactor sf{lora::SpreadingFactor::SF7};
-    lora::Bandwidth bw{lora::Bandwidth::BW_125K};
-    uint16_t sync_word{0};
-    int16_t rssi{-120};
-    int8_t snr{0};
-    uint8_t payload_length{0};
-    std::array<uint8_t, MAX_PAYLOAD> payload{};
-    bool crc_valid{false};
 };
 
 #endif /* __PROC_LORARX_HPP__ */

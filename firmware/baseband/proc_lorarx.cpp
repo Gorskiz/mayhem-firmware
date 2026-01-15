@@ -291,8 +291,8 @@ void LoRaRxProcessor::send_packet() {
     LoRaPacketMessage message;
 
     message.frequency = config_.frequency;
-    message.sf = config_.sf;
-    message.bw = config_.bw;
+    message.spreading_factor = static_cast<uint8_t>(config_.sf);
+    message.bandwidth = static_cast<uint8_t>(config_.bw);
     message.sync_word = config_.sync_word;
     message.rssi = rssi_db_;
     message.snr = snr_db_;
@@ -380,13 +380,13 @@ void LoRaRxProcessor::feed_channel_stats(const buffer_c16_t& channel) {
 }
 
 void LoRaRxProcessor::configure(const LoRaRxConfigureMessage& message) {
-    config_.frequency = message.frequency();
-    config_.sf = message.sf();
-    config_.bw = message.bw();
-    config_.cr = message.cr();
-    config_.sync_word = message.sync_word();
-    config_.header_mode = message.implicit_header() ? lora::HeaderMode::IMPLICIT
-                                                    : lora::HeaderMode::EXPLICIT;
+    config_.frequency = message.frequency;
+    config_.sf = static_cast<lora::SpreadingFactor>(message.spreading_factor);
+    config_.bw = static_cast<lora::Bandwidth>(message.bandwidth);
+    config_.cr = static_cast<lora::CodingRate>(message.coding_rate);
+    config_.sync_word = message.sync_word;
+    config_.header_mode = message.implicit_header ? lora::HeaderMode::IMPLICIT
+                                                  : lora::HeaderMode::EXPLICIT;
 
     // Calculate samples per symbol at decimated rate (500kHz)
     // samples_per_symbol = 2^SF * (sample_rate / bandwidth)

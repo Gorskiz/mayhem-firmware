@@ -147,6 +147,8 @@ class Message {
         SSTVRXCalibration = 89,
         SubCarData = 90,
         TXDisabled = 91,
+        LoRaRxConfigure = 92,   // LoRa RX configuration
+        LoRaPacket = 93,        // LoRa packet received
         MAX
     };
 
@@ -1707,4 +1709,61 @@ class TXDisabledMessage : public Message {
     }
 };
 
+// LoRa RX Configuration Message (M0 -> M4)
+class LoRaRxConfigureMessage : public Message {
+   public:
+    constexpr LoRaRxConfigureMessage(
+        uint32_t frequency,
+        uint8_t spreading_factor,
+        uint8_t bandwidth,
+        uint8_t coding_rate,
+        uint16_t sync_word,
+        bool implicit_header)
+        : Message{ID::LoRaRxConfigure},
+          frequency{frequency},
+          spreading_factor{spreading_factor},
+          bandwidth{bandwidth},
+          coding_rate{coding_rate},
+          sync_word{sync_word},
+          implicit_header{implicit_header} {
+    }
+
+    uint32_t frequency;        // Hz
+    uint8_t spreading_factor;  // 7-12
+    uint8_t bandwidth;         // 0=125k, 1=250k, 2=500k
+    uint8_t coding_rate;       // 1=4/5, 2=4/6, 3=4/7, 4=4/8
+    uint16_t sync_word;        // Network sync word
+    bool implicit_header;      // Implicit header mode
+};
+
+// LoRa Packet Received Message (M4 -> M0)
+class LoRaPacketMessage : public Message {
+   public:
+    static constexpr size_t MAX_PAYLOAD = 255;
+
+    constexpr LoRaPacketMessage()
+        : Message{ID::LoRaPacket},
+          frequency{0},
+          spreading_factor{10},
+          bandwidth{1},
+          sync_word{0},
+          rssi{-120},
+          snr{0},
+          payload_length{0},
+          payload{},
+          crc_valid{false} {
+    }
+
+    uint32_t frequency;
+    uint8_t spreading_factor;
+    uint8_t bandwidth;
+    uint16_t sync_word;
+    int16_t rssi;
+    int8_t snr;
+    uint8_t payload_length;
+    std::array<uint8_t, MAX_PAYLOAD> payload;
+    bool crc_valid;
+};
+
 #endif /*__MESSAGE_H__*/
+
