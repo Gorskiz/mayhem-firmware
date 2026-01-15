@@ -39,6 +39,8 @@ class LogFile {
 
     Optional<File::Error> write_entry(const std::string& entry);
     Optional<File::Error> write_entry(const rtc::RTC& datetime, const std::string& entry);
+    Optional<File::Error> write_entry_with_gps(const std::string& entry, float latitude, float longitude);
+    Optional<File::Error> write_entry_with_gps(const rtc::RTC& datetime, const std::string& entry, float latitude, float longitude);
     Optional<File::Error> write_raw(const std::string& message);
 
    private:

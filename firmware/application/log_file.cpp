@@ -31,6 +31,16 @@ Optional<File::Error> LogFile::write_entry(const rtc::RTC& datetime, const std::
     return write_raw(timestamp + " " + entry);
 }
 
+Optional<File::Error> LogFile::write_entry_with_gps(const std::string& entry, float latitude, float longitude) {
+    return write_entry_with_gps(rtc_time::now(), entry, latitude, longitude);
+}
+
+Optional<File::Error> LogFile::write_entry_with_gps(const rtc::RTC& datetime, const std::string& entry, float latitude, float longitude) {
+    std::string timestamp = to_string_timestamp(datetime);
+    std::string gps_info = to_string_decimal(latitude, 6) + "," + to_string_decimal(longitude, 6);
+    return write_raw(timestamp + " [GPS:" + gps_info + "] " + entry);
+}
+
 Optional<File::Error> LogFile::write_raw(const std::string& message) {
     auto error = file.write_line(message);
     if (!error) {
