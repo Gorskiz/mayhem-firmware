@@ -183,6 +183,10 @@ set(EXTCPPSRC
 	external/sd_wipe/main.cpp
 	external/sd_wipe/ui_sd_wipe.cpp
 
+	# format sdcard
+	external/sd_format/main.cpp
+	external/sd_format/ui_sd_format.cpp
+
 	# playlist editor 232 bytes
 	external/playlist_editor/main.cpp
 	external/playlist_editor/ui_playlist_editor.cpp
@@ -332,6 +336,7 @@ set(EXTAPPLIST
 	antenna_length
 	view_wav
 	sd_wipe
+	sd_format
 	playlist_editor
 	snake
 	stopwatch
