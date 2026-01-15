@@ -45,14 +45,14 @@ namespace ui {
 struct LoRaPacketEntry {
     using Key = uint32_t;
 
-    uint32_t timestamp;           // Reception time
-    uint32_t from_node;           // Source node ID
+    uint32_t timestamp;
+    uint32_t from_node;
     meshcore::MeshProtocol protocol;
     lora::SpreadingFactor sf;
     int16_t rssi;
     int8_t snr;
     uint8_t payload_length;
-    std::array<char, 64> summary;  // Text preview or type indicator
+    std::array<char, 64> summary;
 
     Key key() const { return timestamp; }
 
@@ -74,17 +74,16 @@ class LoRaRxView : public View {
 
     // Radio configuration
     RxRadioState radio_state_{
-        906875000,  // Default Meshtastic US freq
-        500000,     // 500kHz bandwidth for LoRa capture
-        4000000,    // 4MHz sampling rate
-        ReceiverModel::Mode::WidebandFMAudio  // Placeholder mode
-    };
+        906875000,
+        500000,
+        4000000,
+        ReceiverModel::Mode::WidebandFMAudio};
 
     // App settings
     bool logging_enabled_{true};
-    uint8_t selected_sf_{10};  // SF10 default
-    uint8_t selected_bw_{1};   // 250kHz default
-    uint8_t selected_region_{1};  // US default
+    uint8_t selected_sf_{10};
+    uint8_t selected_bw_{1};
+    uint8_t selected_region_{1};
 
     app_settings::SettingsManager settings_{
         "rx_lora",
@@ -106,8 +105,7 @@ class LoRaRxView : public View {
          {"From", 8},
          {"Proto", 5},
          {"RSSI", 4},
-         {"Info", 8}}
-    };
+         {"Info", 8}}};
     RecentEntriesView<LoRaRecentEntries> recent_view_{columns_, recent_packets_};
 
     // Packet statistics
@@ -147,16 +145,14 @@ class LoRaRxView : public View {
          {"SF9", 9},
          {"SF10", 10},
          {"SF11", 11},
-         {"SF12", 12}}
-    };
+         {"SF12", 12}}};
 
     OptionsField field_bw_{
         {11 * 8, 1 * 16},
         4,
         {{"125k", 0},
          {"250k", 1},
-         {"500k", 2}}
-    };
+         {"500k", 2}}};
 
     OptionsField field_region_{
         {23 * 8, 1 * 16},
@@ -165,8 +161,7 @@ class LoRaRxView : public View {
          {"EU868", 3},
          {"EU433", 2},
          {"AU", 6},
-         {"JP", 5}}
-    };
+         {"JP", 5}}};
 
     RSSI rssi_{
         {0 * 8, 2 * 16 + 4, 10 * 8, 8}};
@@ -180,9 +175,6 @@ class LoRaRxView : public View {
         3,
         "Log",
         true};
-
-    // Recent entries view takes remaining space
-    // Positioned at y = 3*16
 
     // Message handlers
     MessageHandlerRegistration message_handler_packet_{
@@ -218,7 +210,6 @@ class LoRaPacketDetailView : public View {
     Text text_rssi_{{10 * 8, 3 * 16, 20 * 8, 16}, ""};
     Text text_length_{{10 * 8, 4 * 16, 20 * 8, 16}, ""};
 
-    // Payload hex view (scrollable)
     Text text_payload_1_{{0 * 8, 7 * 16, 30 * 8, 16}, ""};
     Text text_payload_2_{{0 * 8, 8 * 16, 30 * 8, 16}, ""};
     Text text_payload_3_{{0 * 8, 9 * 16, 30 * 8, 16}, ""};
@@ -258,7 +249,6 @@ class MeshChatView : public View {
 
     void refresh_display();
 
-    // Display area for messages
     Text text_msg_1_{{0, 0 * 16, 30 * 8, 16}, ""};
     Text text_msg_2_{{0, 1 * 16, 30 * 8, 16}, ""};
     Text text_msg_3_{{0, 2 * 16, 30 * 8, 16}, ""};
@@ -278,12 +268,10 @@ class MeshChatView : public View {
         {22 * 8, 15 * 16, 8 * 8, 24},
         "Clear"};
 
-    // Message handler
     MessageHandlerRegistration message_handler_packet_{
         Message::ID::LoRaPacket,
         [this](Message* const p) {
-            // Handle incoming text messages
-            (void)p;  // TODO: Parse and add text messages
+            (void)p;
         }};
 };
 

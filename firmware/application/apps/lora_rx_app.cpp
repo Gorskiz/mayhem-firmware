@@ -31,7 +31,6 @@ using namespace portapack;
 
 namespace ui {
 
-// Format node ID as hex string "!AABBCCDD"
 static std::string format_node_id(uint32_t id) {
     if (id == 0xFFFFFFFF) {
         return "BCAST";
@@ -39,7 +38,6 @@ static std::string format_node_id(uint32_t id) {
     return "!" + to_string_hex(id, 8);
 }
 
-// Update summary text based on protocol and payload
 void LoRaPacketEntry::update_summary(const uint8_t* payload, size_t length, meshcore::MeshProtocol proto) {
     if (length == 0) {
         std::strncpy(summary.data(), "[empty]", summary.size() - 1);
@@ -47,9 +45,7 @@ void LoRaPacketEntry::update_summary(const uint8_t* payload, size_t length, mesh
     }
 
     if (proto == meshcore::MeshProtocol::MESHTASTIC) {
-        // Try to identify Meshtastic message type
         if (length >= 4) {
-            // Check for text message pattern
             bool is_printable = true;
             size_t check_len = std::min(length, size_t(16));
             for (size_t i = 0; i < check_len; i++) {
@@ -69,7 +65,6 @@ void LoRaPacketEntry::update_summary(const uint8_t* payload, size_t length, mesh
     } else if (proto == meshcore::MeshProtocol::MESHCORE) {
         std::strncpy(summary.data(), "[MeshCore]", summary.size() - 1);
     } else {
-        // Show hex preview
         std::string hex_preview;
         for (size_t i = 0; i < std::min(length, size_t(8)); i++) {
             hex_preview += to_string_hex(payload[i], 2);
@@ -95,16 +90,14 @@ LoRaRxView::LoRaRxView(NavigationView& nav)
         &check_log_,
     });
 
-    // Position the recent entries view
     recent_view_.set_parent_rect({0, 3 * 16, screen_width, 12 * 16});
     add_child(&recent_view_);
 
-    // Set up field callbacks
     field_frequency_.set_value(receiver_model.target_frequency());
     field_frequency_.on_change = [this](rf::Frequency f) {
         this->on_frequency_changed(f);
     };
-    field_frequency_.set_step(25000);  // 25kHz steps for LoRa
+    field_frequency_.set_step(25000);
 
     field_sf_.set_by_value(selected_sf_);
     field_sf_.on_change = [this](size_t idx, int32_t val) {
@@ -126,13 +119,11 @@ LoRaRxView::LoRaRxView(NavigationView& nav)
         logging_enabled_ = v;
     };
 
-    // Initialize logger if enabled
     if (logging_enabled_) {
         logger_ = std::make_unique<LogFile>();
         logger_->open_for_append("LOGS/LORA.TXT");
     }
 
-    // Configure receiver
     configure_receiver();
 }
 
@@ -147,25 +138,18 @@ void LoRaRxView::focus() {
 }
 
 void LoRaRxView::configure_receiver() {
-    // Set up receiver model
     receiver_model.set_target_frequency(field_frequency_.value());
-    receiver_model.set_sampling_rate(4000000);  // 4 MHz for LoRa
-    receiver_model.set_baseband_bandwidth(1750000);  // Wide bandwidth
-
-    // Enable receiver
+    receiver_model.set_sampling_rate(4000000);
+    receiver_model.set_baseband_bandwidth(1750000);
     receiver_model.enable();
 
-    // Configure baseband processor
-    // Note: baseband::set_lorarx() would need to be added
-    // For now, we'll use a placeholder message
     LoRaRxConfigureMessage message{
         static_cast<uint32_t>(field_frequency_.value()),
         static_cast<uint8_t>(field_sf_.selected_index_value()),
         static_cast<uint8_t>(field_bw_.selected_index_value()),
-        1,  // Coding rate 4/5
-        0x2B,  // Meshtastic sync word
-        false  // Explicit header
-    };
+        1,
+        0x2B,
+        false};
     shared_memory.baseband_queue.push(message);
 }
 
@@ -187,22 +171,21 @@ void LoRaRxView::on_bw_changed(size_t, int32_t value) {
 void LoRaRxView::on_region_changed(size_t, int32_t value) {
     selected_region_ = static_cast<uint8_t>(value);
 
-    // Set frequency based on region
-    rf::Frequency new_freq = 906875000;  // Default US
+    rf::Frequency new_freq = 906875000;
     switch (value) {
-        case 1:  // US
+        case 1:
             new_freq = 906875000;
             break;
-        case 2:  // EU 433
+        case 2:
             new_freq = 433175000;
             break;
-        case 3:  // EU 868
+        case 3:
             new_freq = 869462500;
             break;
-        case 5:  // JP
+        case 5:
             new_freq = 920000000;
             break;
-        case 6:  // AU
+        case 6:
             new_freq = 916800000;
             break;
     }
@@ -214,7 +197,6 @@ void LoRaRxView::on_packet(const LoRaPacketMessage* message) {
 
     packets_received_++;
 
-    // Create entry
     LoRaPacketEntry entry;
     entry.timestamp = rtc_time::now().value();
     entry.sf = static_cast<lora::SpreadingFactor>(message->spreading_factor);
@@ -222,7 +204,6 @@ void LoRaRxView::on_packet(const LoRaPacketMessage* message) {
     entry.snr = message->snr;
     entry.payload_length = message->payload_length;
 
-    // Detect protocol from sync word
     entry.protocol = meshcore::MeshProtocol::UNKNOWN;
     if ((message->sync_word & 0xFF) == 0x2B) {
         entry.protocol = meshcore::MeshProtocol::MESHTASTIC;
@@ -234,9 +215,7 @@ void LoRaRxView::on_packet(const LoRaPacketMessage* message) {
         other_count_++;
     }
 
-    // Try to extract node ID from payload
     if (message->payload_length >= 8) {
-        // Meshtastic/MeshCore typically have node ID in first 4 bytes
         entry.from_node = (message->payload[0] << 24) |
                           (message->payload[1] << 16) |
                           (message->payload[2] << 8) |
@@ -245,18 +224,13 @@ void LoRaRxView::on_packet(const LoRaPacketMessage* message) {
         entry.from_node = 0;
     }
 
-    // Update summary
     entry.update_summary(message->payload.data(), message->payload_length, entry.protocol);
-
-    // Add to recent entries
     recent_packets_.on_packet(entry);
 
-    // Log if enabled
     if (logging_enabled_ && logger_) {
         log_packet(entry, message->payload.data(), message->payload_length);
     }
 
-    // Update stats display
     update_stats();
 }
 
@@ -265,26 +239,18 @@ void LoRaRxView::log_packet(const LoRaPacketEntry& entry, const uint8_t* payload
 
     std::string log_line;
 
-    // Timestamp
     auto now = rtc_time::now();
     log_line += to_string_datetime(now);
     log_line += ",";
-
-    // Protocol
     log_line += meshcore::protocol_to_string(entry.protocol);
     log_line += ",";
-
-    // From node
     log_line += format_node_id(entry.from_node);
     log_line += ",";
-
-    // SF, RSSI, SNR
     log_line += "SF" + to_string_dec_uint(static_cast<uint8_t>(entry.sf));
     log_line += ",";
     log_line += to_string_dec_int(entry.rssi) + "dBm,";
     log_line += to_string_dec_int(entry.snr) + "dB,";
 
-    // Payload hex
     for (size_t i = 0; i < length; i++) {
         log_line += to_string_hex(payload[i], 2);
     }
@@ -299,7 +265,6 @@ void LoRaRxView::update_stats() {
     text_stats_.set(stats);
 }
 
-// Packet Detail View
 LoRaPacketDetailView::LoRaPacketDetailView(NavigationView& nav, const LoRaPacketEntry& entry)
     : entry_(entry) {
     add_children({
@@ -316,7 +281,6 @@ LoRaPacketDetailView::LoRaPacketDetailView(NavigationView& nav, const LoRaPacket
         &button_close_,
     });
 
-    // Populate fields
     text_from_.set(format_node_id(entry.from_node));
     text_protocol_.set(meshcore::protocol_to_string(entry.protocol));
     text_sf_bw_.set("SF" + to_string_dec_uint(static_cast<uint8_t>(entry.sf)));
@@ -332,7 +296,6 @@ void LoRaPacketDetailView::focus() {
     button_close_.focus();
 }
 
-// Mesh Chat View
 MeshChatView::MeshChatView(NavigationView& nav)
     : nav_(nav) {
     add_children({
@@ -372,7 +335,6 @@ void MeshChatView::focus() {
 
 void MeshChatView::add_message(uint32_t from, const char* text, meshcore::MeshProtocol proto) {
     if (message_count_ >= MAX_MESSAGES) {
-        // Shift messages up
         for (size_t i = 0; i < MAX_MESSAGES - 1; i++) {
             messages_[i] = messages_[i + 1];
         }
@@ -391,9 +353,16 @@ void MeshChatView::add_message(uint32_t from, const char* text, meshcore::MeshPr
 
 void MeshChatView::refresh_display() {
     Text* lines[] = {
-        &text_msg_1_, &text_msg_2_, &text_msg_3_, &text_msg_4_, &text_msg_5_,
-        &text_msg_6_, &text_msg_7_, &text_msg_8_, &text_msg_9_, &text_msg_10_
-    };
+        &text_msg_1_,
+        &text_msg_2_,
+        &text_msg_3_,
+        &text_msg_4_,
+        &text_msg_5_,
+        &text_msg_6_,
+        &text_msg_7_,
+        &text_msg_8_,
+        &text_msg_9_,
+        &text_msg_10_};
 
     for (size_t i = 0; i < 10; i++) {
         size_t msg_idx = scroll_offset_ + i;
