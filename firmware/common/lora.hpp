@@ -29,16 +29,16 @@
 namespace lora {
 
 // LoRa Regional Frequencies (MHz)
-constexpr uint32_t FREQ_US_915 = 915000000;      // US ISM band center
-constexpr uint32_t FREQ_EU_868 = 868000000;      // EU ISM band
-constexpr uint32_t FREQ_AS_433 = 433000000;      // Asia 433 MHz
-constexpr uint32_t FREQ_AS_920 = 920000000;      // Asia 920 MHz
+constexpr uint32_t FREQ_US_915 = 915000000;
+constexpr uint32_t FREQ_EU_868 = 868000000;
+constexpr uint32_t FREQ_AS_433 = 433000000;
+constexpr uint32_t FREQ_AS_920 = 920000000;
 
 // LoRa Bandwidths (Hz)
 enum class Bandwidth : uint8_t {
-    BW_125K = 0,  // 125 kHz (most common)
-    BW_250K = 1,  // 250 kHz
-    BW_500K = 2,  // 500 kHz
+    BW_125K = 0,
+    BW_250K = 1,
+    BW_500K = 2,
 };
 
 constexpr uint32_t bandwidth_hz(Bandwidth bw) {
@@ -54,14 +54,14 @@ constexpr uint32_t bandwidth_hz(Bandwidth bw) {
     }
 }
 
-// Spreading Factors
+// Spreading Factors (SF7=fastest, SF12=longest range)
 enum class SpreadingFactor : uint8_t {
-    SF7 = 7,    // Fastest, shortest range
+    SF7 = 7,
     SF8 = 8,
     SF9 = 9,
     SF10 = 10,
     SF11 = 11,
-    SF12 = 12,  // Slowest, longest range
+    SF12 = 12,
 };
 
 // Samples per symbol = 2^SF
@@ -71,17 +71,17 @@ constexpr uint16_t samples_per_symbol(SpreadingFactor sf) {
 
 // Coding Rates (FEC)
 enum class CodingRate : uint8_t {
-    CR_4_5 = 1,  // 4/5 - least redundancy
-    CR_4_6 = 2,  // 4/6
-    CR_4_7 = 3,  // 4/7
-    CR_4_8 = 4,  // 4/8 - most redundancy
+    CR_4_5 = 1,
+    CR_4_6 = 2,
+    CR_4_7 = 3,
+    CR_4_8 = 4,
 };
 
 // Sync Words (identify network type)
-constexpr uint16_t SYNC_WORD_LORAWAN_PUBLIC = 0x3444;   // LoRaWAN public network
-constexpr uint16_t SYNC_WORD_LORAWAN_PRIVATE = 0x1424;  // LoRaWAN private
-constexpr uint16_t SYNC_WORD_MESHTASTIC = 0x2B;         // Meshtastic default
-constexpr uint16_t SYNC_WORD_LEGACY = 0x12;             // Legacy/generic
+constexpr uint16_t SYNC_WORD_LORAWAN_PUBLIC = 0x3444;
+constexpr uint16_t SYNC_WORD_LORAWAN_PRIVATE = 0x1424;
+constexpr uint16_t SYNC_WORD_MESHTASTIC = 0x2B;
+constexpr uint16_t SYNC_WORD_LEGACY = 0x12;
 
 // Preamble
 constexpr uint8_t PREAMBLE_MIN_SYMBOLS = 6;
@@ -90,8 +90,8 @@ constexpr uint8_t PREAMBLE_MAX_SYMBOLS = 65535;
 
 // LoRa Packet Header modes
 enum class HeaderMode : uint8_t {
-    EXPLICIT = 0,  // Header included (payload length, CR, CRC presence)
-    IMPLICIT = 1,  // No header, settings pre-agreed
+    EXPLICIT = 0,
+    IMPLICIT = 1,
 };
 
 // Maximum payload sizes
@@ -107,15 +107,12 @@ struct __attribute__((packed)) LoRaPacketHeader {
 
 // Decoded LoRa packet
 struct LoRaPacket {
-    // Reception metadata
     uint32_t frequency;
     SpreadingFactor sf;
     Bandwidth bw;
-    int16_t rssi;      // dBm
-    int8_t snr;        // dB * 4
+    int16_t rssi;
+    int8_t snr;
     uint32_t timestamp;
-
-    // Packet contents
     uint16_t sync_word;
     HeaderMode header_mode;
     uint8_t payload_length;
@@ -123,7 +120,6 @@ struct LoRaPacket {
     bool crc_valid;
     std::array<uint8_t, MAX_PAYLOAD_LENGTH> payload;
 
-    // Derived info
     bool is_meshtastic() const {
         return (sync_word & 0xFF) == SYNC_WORD_MESHTASTIC;
     }
@@ -136,13 +132,13 @@ struct LoRaPacket {
 
 // Receiver state machine
 enum class RxState : uint8_t {
-    IDLE,              // Waiting for preamble
-    PREAMBLE_DETECT,   // Detecting preamble chirps
-    SYNC_DETECT,       // Looking for sync word
-    HEADER_DECODE,     // Decoding explicit header
-    PAYLOAD_DECODE,    // Receiving payload symbols
-    CRC_CHECK,         // Verifying CRC
-    PACKET_READY,      // Complete packet available
+    IDLE,
+    PREAMBLE_DETECT,
+    SYNC_DETECT,
+    HEADER_DECODE,
+    PAYLOAD_DECODE,
+    CRC_CHECK,
+    PACKET_READY,
 };
 
 // LoRa configuration for baseband processor
@@ -155,7 +151,7 @@ struct LoRaConfig {
     HeaderMode header_mode;
     uint8_t preamble_length;
     bool crc_enabled;
-    bool low_data_rate_optimize;  // Required for SF11/SF12 at 125kHz
+    bool low_data_rate_optimize;
 };
 
 // Gray coding lookup (used in LoRa symbol encoding)
@@ -173,7 +169,6 @@ inline uint16_t gray_decode(uint16_t gray) {
 
 // Calculate symbol duration in microseconds
 inline uint32_t symbol_duration_us(SpreadingFactor sf, Bandwidth bw) {
-    // T_symbol = 2^SF / BW
     return (1000000ULL * samples_per_symbol(sf)) / bandwidth_hz(bw);
 }
 
@@ -187,11 +182,10 @@ inline uint32_t calculate_airtime_ms(
     bool explicit_header,
     bool crc_enabled) {
     uint32_t t_sym = symbol_duration_us(sf, bw);
-    uint32_t t_preamble = (preamble_len + 4) * t_sym + t_sym / 4;  // +4.25 symbols
+    uint32_t t_preamble = (preamble_len + 4) * t_sym + t_sym / 4;
 
-    // Payload symbols calculation (simplified)
     uint8_t sf_val = static_cast<uint8_t>(sf);
-    int payload_symbols = 8;  // Minimum
+    int payload_symbols = 8;
     int bits = 8 * payload_len - 4 * sf_val + 28;
     if (!crc_enabled) bits -= 16;
     if (explicit_header) bits += 20;

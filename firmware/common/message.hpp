@@ -147,8 +147,8 @@ class Message {
         SSTVRXCalibration = 89,
         SubCarData = 90,
         TXDisabled = 91,
-        LoRaRxConfigure = 92,   // LoRa RX configuration
-        LoRaPacket = 93,        // LoRa packet received
+        LoRaRxConfigure = 92,
+        LoRaPacket = 93,
         MAX
     };
 
@@ -1766,4 +1766,3 @@ class LoRaPacketMessage : public Message {
 };
 
 #endif /*__MESSAGE_H__*/
-
